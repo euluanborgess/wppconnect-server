@@ -54,6 +54,7 @@ export function initServer(serverOptions: any) {
     cors({
       origin: [
         'https://id-preview--d4088fc0-4290-4ae0-ab30-e4a38ffff74d.lovable.app',
+        'https://d4088fc0-4290-4ae0-ab30-e4a38ffff74d.lovableproject.com',
       ],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
       allowedHeaders: [
