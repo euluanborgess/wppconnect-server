@@ -109,7 +109,11 @@ export async function callWebHook(
         data.chatId ||
         (data.chatId ? data.chatId._serialized : null);
       data = Object.assign({ event: event, session: client.session }, data);
-      if (req.serverOptions.mapper.enable)
+      if (
+        req.serverOptions &&
+        req.serverOptions.mapper &&
+        req.serverOptions.mapper.enable
+      )
         data = await convert(req.serverOptions.mapper.prefix, data);
       api
         .post(webhook, data)
@@ -170,7 +174,12 @@ export async function startAllSessions(config: any, logger: any) {
 export async function startHelper(client: any, req: any) {
   if (req.serverOptions.webhook.allUnreadOnStart) await sendUnread(client, req);
 
-  if (req.serverOptions.archive.enable) await archive(client, req);
+  if (
+    req.serverOptions &&
+    req.serverOptions.archive &&
+    req.serverOptions.archive.enable
+  )
+    await archive(client, req);
 }
 
 async function sendUnread(client: any, req: any) {
