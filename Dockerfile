@@ -28,6 +28,19 @@ FROM base
 WORKDIR /usr/src/wpp-server/
 RUN apk add --no-cache chromium
 RUN yarn cache clean
+
+# Configurações do Puppeteer para resolver timeouts
+ENV PUPPETEER_TIMEOUT=120000
+ENV PUPPETEER_PROTOCOL_TIMEOUT=180000
+ENV PUPPETEER_NAVIGATION_TIMEOUT=120000
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+ENV PUPPETEER_HEADLESS=true
+ENV PUPPETEER_ARGS=--no-sandbox,--disable-setuid-sandbox,--disable-dev-shm-usage,--disable-accelerated-2d-canvas,--no-first-run,--no-zygote,--disable-gpu,--disable-extensions,--disable-background-timer-throttling,--disable-backgrounding-occluded-windows,--disable-renderer-backgrounding
+
+# Configurações adicionais para WPPConnect (se suportadas)
+ENV WPP_TIMEOUT=180000
+ENV WPP_BROWSER_TIMEOUT=240000
+
 COPY . .
 COPY --from=build /usr/src/wpp-server/ /usr/src/wpp-server/
 EXPOSE 21465
