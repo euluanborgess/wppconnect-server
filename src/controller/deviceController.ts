@@ -81,15 +81,35 @@ export async function showAllContacts(req: Request, res: any) {
 
 export async function getAllChats(req: Request, res: any) {
   try {
+    if (!req.client) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'WhatsApp client not initialized',
+      });
+    }
+
+    // Check if client is connected
+    const isConnected = await req.client.isConnected();
+    if (!isConnected) {
+      return res.status(500).json({
+        status: 'error',
+        message: 'WhatsApp client not connected',
+      });
+    }
+
     const response = await req.client.getAllChats();
-    return res
-      .status(200)
-      .json({ status: 'success', response: response, mapper: 'chat' });
+    return res.status(200).json({
+      status: 'success',
+      response: response || [],
+      mapper: 'chat',
+    });
   } catch (e) {
     req.logger.error(e);
-    return res
-      .status(500)
-      .json({ status: 'error', message: 'Error on get all chats' });
+    return res.status(500).json({
+      status: 'error',
+      message: 'Error on get all chats',
+      error: e.message,
+    });
   }
 }
 
