@@ -26,6 +26,10 @@ export default {
     waitTime: 10,
     daysToArchive: 45,
   },
+  mapper: {
+    enable: false,
+    prefix: 'default-',
+  },
   log: {
     level: 'error',
     logger: ['console', 'file'],

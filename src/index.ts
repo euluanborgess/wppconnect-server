@@ -85,7 +85,14 @@ export function initServer(serverOptions: any) {
       if (content == 'application/json') {
         data = JSON.parse(data);
         if (!data.session) data.session = req.client ? req.client.session : '';
-        if (data.mapper && req.serverOptions.mapper.enable) {
+
+        // Add safety checks here
+        if (
+          data.mapper &&
+          req.serverOptions &&
+          req.serverOptions.mapper &&
+          req.serverOptions.mapper.enable
+        ) {
           data.response = await convert(
             req.serverOptions.mapper.prefix,
             data.response,
