@@ -98,35 +98,79 @@ export async function download(message: any, client: any, logger: any) {
   }
 }
 
-export async function startAllSessions(req: Request, res: any) {
-  const { secretkey } = req.params;
-  const { authorization: token } = req.headers;
+export async function startAllSessions() {
+  try {
+    if (!config.startAllSession) {
+      console.info('StartAllSession is disabled in config');
+      return;
+    }
 
-  let tokenDecrypt = '';
+    const tokensDir = config.customUserDataDir;
 
-  if (secretkey === undefined) {
-    tokenDecrypt = (token as any).split(' ')[0];
-  } else {
-    tokenDecrypt = secretkey;
+    // Check if tokens directory exists
+    if (!fs.existsSync(tokensDir)) {
+      console.info('Tokens directory does not exist, creating it...');
+      fs.mkdirSync(tokensDir, { recursive: true });
+      return;
+    }
+
+    const sessions = fs
+      .readdirSync(tokensDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+
+    if (sessions.length === 0) {
+      console.info('No sessions found to start');
+      return;
+    }
+
+    console.info(`Found ${sessions.length} sessions to start`);
+
+    for (const session of sessions) {
+      try {
+        // Check if session has valid token file
+        const tokenPath = path.join(tokensDir, session, 'session.data.json');
+        if (!fs.existsSync(tokenPath)) {
+          console.warn(`Session ${session} has no token file, skipping...`);
+          continue;
+        }
+
+        console.info(`Starting session: ${session}`);
+
+        const response = await axios.post(
+          `${config.host}:${config.port}/api/${session}/start-session`,
+          {},
+          {
+            timeout: 30000,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        console.info(`Session ${session} started successfully`);
+      } catch (error) {
+        if (error.response?.status === 404) {
+          console.warn(
+            `Session ${session} endpoint not found, might need manual start`
+          );
+        } else if (error.code === 'ECONNREFUSED') {
+          console.error(
+            `Connection refused for session ${session}, server might not be ready`
+          );
+        } else {
+          console.error(`Failed to start session ${session}:`, error.message);
+        }
+        // Continue with other sessions instead of failing completely
+        continue;
+      }
+    }
+
+    console.info('Finished attempting to start all sessions');
+  } catch (error) {
+    console.error('Error in startAllSessions:', error.message);
+    // Don't throw the error, just log it
   }
-
-  const allSessions = await getAllTokens(req);
-
-  if (tokenDecrypt !== req.serverOptions.secretKey) {
-    return res.status(400).json({
-      response: 'error',
-      message: 'The token is incorrect',
-    });
-  }
-
-  allSessions.map(async (session: string) => {
-    const util = new CreateSessionUtil();
-    await util.opendata(req, session);
-  });
-
-  return await res
-    .status(201)
-    .json({ status: 'success', message: 'Starting all sessions' });
 }
 
 export async function showAllSessions(req: Request, res: any) {
