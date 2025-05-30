@@ -43,7 +43,10 @@ export async function sendMessage(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     req.io.emit('mensagem-enviada', results);
     returnSucess(res, results);
   } catch (error) {
@@ -74,7 +77,10 @@ export async function sendFile(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     if (req.file) await unlinkAsync(pathFile);
     returnSucess(res, results);
   } catch (error) {
@@ -106,7 +112,10 @@ export async function sendVoice(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -125,7 +134,10 @@ export async function sendVoice64(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -144,7 +156,10 @@ export async function sendLinkPreview(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
@@ -168,7 +183,10 @@ export async function sendLocation(req: Request, res: any) {
     }
 
     if (results.length === 0)
-      return res.status(400).json('Error sending message');
+      return res.status(400).json({
+        status: 'Error',
+        message: 'Error sending message',
+      });
     returnSucess(res, results);
   } catch (error) {
     returnError(req, res, error);
